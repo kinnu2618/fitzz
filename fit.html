@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Progress Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --accent: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --gray: #7f8c8d;
+            --light-gray: #bdc3c7;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-attachment: fixed;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .date-display {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .date-selector {
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .date-selector input {
+            padding: 8px 12px;
+            border: 2px solid var(--light-gray);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            min-width: 150px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .tabs {
+            display: flex;
+            background: var(--dark);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            background: var(--dark);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .tab:hover {
+            background: #1a252f;
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            box-shadow: inset 0 -4px 0 white;
+        }
+        
+        .tab i {
+            margin-right: 8px;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .workout-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .workout-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .workout-title {
+            font-size: 1.6rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        .workout-title i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .complete-all {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .complete-all:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+        }
+        
+        .complete-all i {
+            margin-right: 5px;
+        }
+        
+        .exercise {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 12px;
+            background: var(--light);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .exercise:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .exercise-info {
+            flex: 1;
+        }
+        
+        .exercise-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        
+        .exercise-sets {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .exercise-actions {
+            display: flex;
+            align-items: center;
+        }
+        
+        .complete-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .complete-btn:hover {
+            background: #27ae60;
+        }
+        
+        .complete-btn i {
+            margin-right: 5px;
+        }
+        
+        .completed {
+            background: #e8f6ef;
+            border-left: 5px solid var(--secondary);
+        }
+        
+        .completed .exercise-name {
+            color: var(--secondary);
+            text-decoration: line-through;
+        }
+        
+        .completed .complete-btn {
+            background: var(--dark);
+        }
+        
+        .completed .complete-btn:hover {
+            background: #1a252f;
+        }
+        
+        .weight-tracker {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .weight-form {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .weight-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid var(--light-gray);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .weight-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .submit-weight {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .submit-weight:hover {
+            background: #2980b9;
+        }
+        
+        .weight-history {
+            margin-top: 25px;
+        }
+        
+        .weight-history h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        .weight-history h3 i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .weight-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s;
+        }
+        
+        .weight-entry:hover {
+            background: #f9f9f9;
+        }
+        
+        .weight-date {
+            color: var(--gray);
+        }
+        
+        .progress-summary {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-item {
+            margin-bottom: 20px;
+        }
+        
+        .progress-item p {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 10px;
+            width: 0%;
+            transition: width 1s ease;
+        }
+        
+        .chart-container {
+            margin-top: 30px;
+            height: 200px;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 0 10px;
+            border-bottom: 2px solid var(--light-gray);
+            border-left: 2px solid var(--light-gray);
+        }
+        
+        .chart-bar {
+            width: 40px;
+            background: var(--primary);
+            margin: 0 5px;
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            transition: height 1s ease;
+        }
+        
+        .chart-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .motivation {
+            text-align: center;
+            margin: 25px 0;
+            padding: 15px;
+            background: #ffeaa7;
+            border-radius: 10px;
+            font-style: italic;
+        }
+        
+        .history-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .history-controls select, .history-controls button {
+            padding: 10px 15px;
+            border: 2px solid var(--light-gray);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .history-controls button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .history-table th, .history-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .history-table th {
+            background: var(--light);
+            font-weight: bold;
+        }
+        
+        .history-table tr:hover {
+            background: #f9f9f9;
+        }
+        
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                min-width: 100%;
+            }
+            
+            .exercise {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .exercise-actions {
+                margin-top: 15px;
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .weight-form {
+                flex-direction: column;
+            }
+            
+            .stats {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stat-box {
+                width: 100%;
+                max-width: 250px;
+            }
+            
+            .history-controls {
+                flex-direction: column;
+            }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-dumbbell"></i>
+            </div>
+            <h1>Fitness Progress Tracker</h1>
+            <div class="date-display" id="current-date">Loading date...</div>
+            
+            <div class="date-selector">
+                <input type="date" id="selected-date">
+                <button id="load-date-btn"><i class="fas fa-calendar-day"></i> Load Date</button>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-label">Today's Progress</div>
+                    <div class="stat-value" id="overall-progress">0%</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Current Weight</div>
+                    <div class="stat-value" id="current-weight">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Workouts Completed</div>
+                    <div class="stat-value" id="workouts-completed">0/4</div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" data-target="workout"><i class="fas fa-dumbbell"></i> Workout</button>
+            <button class="tab" data-target="weight"><i class="fas fa-weight"></i> Weight</button>
+            <button class="tab" data-target="progress"><i class="fas fa-chart-line"></i> Progress</button>
+            <button class="tab" data-target="history"><i class="fas fa-history"></i> History</button>
+        </div>
+        
+        <div class="content">
+            <div id="workout" class="workout-section">
+                <div class="tabs" style="background: #f8f9fa; margin-bottom: 20px;">
+                    <button class="tab active" data-target="legs" style="min-width: auto; color: var(--dark);">Legs</button>
+                    <button class="tab" data-target="arms" style="min-width: auto; color: var(--dark);">Arms</button>
+                    <button class="tab" data-target="chest-shoulders" style="min-width: auto; color: var(--dark);">Chest & Shoulders</button>
+                    <button class="tab" data-target="back" style="min-width: auto; color: var(--dark);">Back</button>
+                </div>
+                
+                <div id="legs" class="workout-content">
+                    <div class="workout-header">
+                        <h2 class="workout-title"><i class="fas fa-running"></i> Legs Workout</h2>
+                        <button class="complete-all" data-workout="legs"><i class="fas fa-check-circle"></i> Complete All</button>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Lying Leg Curls</div>
+                            <div class="exercise-sets">3 sets - 10 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="lying-leg-curls"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Squats</div>
+                            <div class="exercise-sets">3 sets - 10 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="squats"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Romanian Deadlift</div>
+                            <div class="exercise-sets">3 sets - 10 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="romanian-deadlift"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Leg Extension</div>
+                            <div class="exercise-sets">3 sets - 10 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="leg-extension"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Standing Calf Raises</div>
+                            <div class="exercise-sets">3 sets - 10 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="standing-calf-raises"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="arms" class="workout-content" style="display: none;">
+                    <div class="workout-header">
+                        <h2 class="workout-title"><i class="fas fa-hand-fist"></i> Arms Workout</h2>
+                        <button class="complete-all" data-workout="arms"><i class="fas fa-check-circle"></i> Complete All</button>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Unilateral Cross-Body Tricep Extension</div>
+                            <div class="exercise-sets">3 sets - 10 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="cross-body-tricep"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Unilateral Preacher Curls</div>
+                            <div class="exercise-sets">3 sets - 10 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="preacher-curls"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Unilateral Overhead Tricep Extension</div>
+                            <div class="exercise-sets">3 sets - 10 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="overhead-tricep"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Incline Dumbbell Curls</div>
+                            <div class="exercise-sets">3 sets - 10 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="incline-curls"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Cross Body Hammer Curls</div>
+                            <div class="exercise-sets">3 sets - 10 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="hammer-curls"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="chest-shoulders" class="workout-content" style="display: none;">
+                    <div class="workout-header">
+                        <h2 class="workout-title"><i class="fas fa-user"></i> Chest & Shoulders Workout</h2>
+                        <button class="complete-all" data-workout="chest-shoulders"><i class="fas fa-check-circle"></i> Complete All</button>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Incline Barbell Press</div>
+                            <div class="exercise-sets">3 sets - 8,10,15 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="incline-press"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Shoulder Press</div>
+                            <div class="exercise-sets">3 sets - 12 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="shoulder-press"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Chest Fly</div>
+                            <div class="exercise-sets">3 sets - 12 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="chest-fly"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Lateral Raises</div>
+                            <div class="exercise-sets">3 sets - 20 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="lateral-raises"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Front Raises</div>
+                            <div class="exercise-sets">3 sets - 20 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="front-raises"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="back" class="workout-content" style="display: none;">
+                    <div class="workout-header">
+                        <h2 class="workout-title"><i class="fas fa-vest"></i> Back Workout</h2>
+                        <button class="complete-all" data-workout="back"><i class="fas fa-check-circle"></i> Complete All</button>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Dead Lift</div>
+                            <div class="exercise-sets">3 sets - 10 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="dead-lift"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Lat Pulldown</div>
+                            <div class="exercise-sets">4 sets - 10 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="lat-pulldown"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Omni-Grip Chest Supported Row</div>
+                            <div class="exercise-sets">3 sets - 12 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="chest-supported-row"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Dumbbell Pullover</div>
+                            <div class="exercise-sets">3 sets - 10 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="dumbbell-pullover"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-info">
+                            <div class="exercise-name">Omni-Direction Face Pull</div>
+                            <div class="exercise-sets">3 sets - 15 reps</div>
+                        </div>
+                        <div class="exercise-actions">
+                            <button class="complete-btn" data-exercise="face-pull"><i class="fas fa-check"></i> Complete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="weight" class="weight-tracker" style="display: none;">
+                <h2><i class="fas fa-weight"></i> Weight Tracker</h2>
+                <div class="weight-form">
+                    <input type="number" step="0.1" class="weight-input" id="weight-input" placeholder="Enter today's weight (kg)">
+                    <button class="submit-weight" id="submit-weight">Submit Weight</button>
+                </div>
+                <div class="weight-history">
+                    <h3><i class="fas fa-history"></i> Weight History</h3>
+                    <div id="weight-entries">
+                        <!-- Weight entries will be added here -->
+                    </div>
+                </div>
+                
+                <div class="chart-container" id="weight-chart">
+                    <!-- Chart will be generated here -->
+                </div>
+            </div>
+            
+            <div id="progress" class="progress-summary" style="display: none;">
+                <h2><i class="fas fa-chart-line"></i> Progress Summary</h2>
+                
+                <div class="motivation">
+                    "The only bad workout is the one that didn't happen." - Unknown
+                </div>
+                
+                <div id="workout-progress">
+                    <h3>Workout Completion History</h3>
+                    <div class="progress-item">
+                        <p>Legs: <span id="legs-progress">0%</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="legs-bar"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <p>Arms: <span id="arms-progress">0%</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="arms-bar"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <p>Chest & Shoulders: <span id="chest-progress">0%</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="chest-bar"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <p>Back: <span id="back-progress">0%</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="back-bar"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container" id="workout-chart">
+                    <!-- Chart will be generated here -->
+                </div>
+            </div>
+            
+            <div id="history" class="history-section" style="display: none;">
+                <h2><i class="fas fa-history"></i> Workout History</h2>
+                
+                <div class="history-controls">
+                    <select id="history-month">
+                        <option value="0">January</option>
+                        <option value="1">February</option>
+                        <option value="2">March</option>
+                        <option value="3">April</option>
+                        <option value="4">May</option>
+                        <option value="5">June</option>
+                        <option value="6">July</option>
+                        <option value="7">August</option>
+                        <option value="8">September</option>
+                        <option value="9">October</option>
+                        <option value="10">November</option>
+                        <option value="11">December</option>
+                    </select>
+                    <select id="history-year">
+                        <!-- Years will be populated by JavaScript -->
+                    </select>
+                    <button id="load-history-btn">Load History</button>
+                </div>
+                
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Workout Type</th>
+                            <th>Completed Exercises</th>
+                            <th>Weight (kg)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-data">
+                        <!-- History data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        Exercise marked as completed!
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Display current date
+            const currentDate = new Date();
+            document.getElementById('current-date').textContent = currentDate.toLocaleDateString('en-US', { 
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+            });
+            
+            // Set today's date as default in the date selector
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            let mm = today.getMonth() + 1;
+            let dd = today.getDate();
+            
+            if (dd < 10) dd = '0' + dd;
+            if (mm < 10) mm = '0' + mm;
+            
+            const formattedToday = `${yyyy}-${mm}-${dd}`;
+            document.getElementById('selected-date').value = formattedToday;
+            
+            // Populate years for history
+            const yearSelect = document.getElementById('history-year');
+            const currentYear = today.getFullYear();
+            for (let year = currentYear; year >= currentYear - 5; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            }
+            
+            // Set current month and year in history selectors
+            document.getElementById('history-month').value = today.getMonth();
+            document.getElementById('history-year').value = currentYear;
+            
+            // Tab navigation
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const target = this.getAttribute('data-target');
+                    
+                    // Hide all sections
+                    document.querySelectorAll('.workout-section, .weight-tracker, .progress-summary, .history-section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show target section
+                    document.getElementById(target).style.display = 'block';
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // If progress tab is selected, update charts
+                    if (target === 'progress') {
+                        updateProgressCharts();
+                    }
+                    
+                    // If weight tab is selected, update weight chart
+                    if (target === 'weight') {
+                        updateWeightChart();
+                    }
+                    
+                    // If history tab is selected, load history
+                    if (target === 'history') {
+                        loadHistory();
+                    }
+                });
+            });
+            
+            // Workout type tabs
+            const workoutTabs = document.querySelectorAll('#workout .tab');
+            workoutTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const target = this.getAttribute('data-target');
+                    
+                    // Hide all workout contents
+                    document.querySelectorAll('.workout-content').forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    
+                    // Show target content
+                    document.getElementById(target).style.display = 'block';
+                    
+                    // Update active tab
+                    workoutTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Load date button
+            document.getElementById('load-date-btn').addEventListener('click', function() {
+                const selectedDate = document.getElementById('selected-date').value;
+                if (selectedDate) {
+                    loadDateData(selectedDate);
+                    showNotification(`Data loaded for ${selectedDate}`);
+                }
+            });
+            
+            // Load history button
+            document.getElementById('load-history-btn').addEventListener('click', function() {
+                loadHistory();
+            });
+            
+            // Exercise completion
+            const completeButtons = document.querySelectorAll('.complete-btn');
+            completeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const exercise = this.getAttribute('data-exercise');
+                    const exerciseElement = this.closest('.exercise');
+                    
+                    // Toggle completed state
+                    exerciseElement.classList.toggle('completed');
+                    
+                    // Update button text
+                    if (exerciseElement.classList.contains('completed')) {
+                        this.innerHTML = '<i class="fas fa-undo"></i> Undo';
+                        showNotification('Exercise marked as completed!');
+                    } else {
+                        this.innerHTML = '<i class="fas fa-check"></i> Complete';
+                    }
+                    
+                    // Save to localStorage
+                    saveCompletionState(exercise, exerciseElement.classList.contains('completed'));
+                    
+                    // Update progress
+                    updateProgress();
+                });
+            });
+            
+            // Complete all exercises in a workout
+            const completeAllButtons = document.querySelectorAll('.complete-all');
+            completeAllButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const workout = this.getAttribute('data-workout');
+                    const workoutSection = document.getElementById(workout);
+                    const exercises = workoutSection.querySelectorAll('.exercise');
+                    
+                    exercises.forEach(exercise => {
+                        exercise.classList.add('completed');
+                        const completeButton = exercise.querySelector('.complete-btn');
+                        completeButton.innerHTML = '<i class="fas fa-undo"></i> Undo';
+                        
+                        // Save to localStorage
+                        const exerciseName = completeButton.getAttribute('data-exercise');
+                        saveCompletionState(exerciseName, true);
+                    });
+                    
+                    // Update progress
+                    updateProgress();
+                    
+                    showNotification('All exercises marked as completed!');
+                });
+            });
+            
+            // Weight tracking
+            const weightInput = document.getElementById('weight-input');
+            const submitWeight = document.getElementById('submit-weight');
+            
+            submitWeight.addEventListener('click', function() {
+                const weight = parseFloat(weightInput.value);
+                if (isNaN(weight)) {
+                    alert('Please enter a valid weight');
+                    return;
+                }
+                
+                // Save weight
+                saveWeight(weight);
+                
+                // Update weight display
+                displayWeightHistory();
+                
+                // Update weight chart
+                updateWeightChart();
+                
+                // Clear input
+                weightInput.value = '';
+                
+                showNotification('Weight recorded successfully!');
+            });
+            
+            // Load saved data for today
+            loadDateData(formattedToday);
+            
+            // Function to show notification
+            function showNotification(message) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Function to load data for a specific date
+            function loadDateData(dateString) {
+                // Update date display
+                const date = new Date(dateString);
+                document.getElementById('current-date').textContent = date.toLocaleDateString('en-US', { 
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+                });
+                
+                // Load completion states for this date
+                const completionData = JSON.parse(localStorage.getItem('completionData')) || {};
+                
+                if (completionData[dateString]) {
+                    for (const [exercise, completed] of Object.entries(completionData[dateString])) {
+                        const button = document.querySelector(`.complete-btn[data-exercise="${exercise}"]`);
+                        if (button) {
+                            const exerciseElement = button.closest('.exercise');
+                            if (completed) {
+                                exerciseElement.classList.add('completed');
+                                button.innerHTML = '<i class="fas fa-undo"></i> Undo';
+                            } else {
+                                exerciseElement.classList.remove('completed');
+                                button.innerHTML = '<i class="fas fa-check"></i> Complete';
+                            }
+                        }
+                    }
+                } else {
+                    // Reset all exercises if no data for this date
+                    completeButtons.forEach(button => {
+                        const exerciseElement = button.closest('.exercise');
+                        exerciseElement.classList.remove('completed');
+                        button.innerHTML = '<i class="fas fa-check"></i> Complete';
+                    });
+                }
+                
+                // Load weight for this date
+                const weightData = JSON.parse(localStorage.getItem('weightData')) || {};
+                if (weightData[dateString]) {
+                    weightInput.value = weightData[dateString];
+                } else {
+                    weightInput.value = '';
+                }
+                
+                // Update displays
+                displayWeightHistory();
+                updateProgress();
+            }
+            
+            // Function to save completion state
+            function saveCompletionState(exercise, completed) {
+                const selectedDate = document.getElementById('selected-date').value;
+                let completionData = JSON.parse(localStorage.getItem('completionData')) || {};
+                
+                if (!completionData[selectedDate]) {
+                    completionData[selectedDate] = {};
+                }
+                
+                completionData[selectedDate][exercise] = completed;
+                localStorage.setItem('completionData', JSON.stringify(completionData));
+            }
+            
+            // Function to save weight
+            function saveWeight(weight) {
+                const selectedDate = document.getElementById('selected-date').value;
+                let weightData = JSON.parse(localStorage.getItem('weightData')) || {};
+                
+                weightData[selectedDate] = weight;
+                localStorage.setItem('weightData', JSON.stringify(weightData));
+                
+                // Update current weight display
+                document.getElementById('current-weight').textContent = `${weight} kg`;
+            }
+            
+            // Function to display weight history
+            function displayWeightHistory() {
+                const weightEntries = document.getElementById('weight-entries');
+                weightEntries.innerHTML = '';
+                
+                const weightData = JSON.parse(localStorage.getItem('weightData')) || {};
+                
+                // Convert to array and sort by date (newest first)
+                const sortedEntries = Object.entries(weightData)
+                    .sort((a, b) => new Date(b[0]) - new Date(a[0]));
+                
+                if (sortedEntries.length === 0) {
+                    weightEntries.innerHTML = '<p>No weight entries yet.</p>';
+                    return;
+                }
+                
+                // Display current weight
+                const selectedDate = document.getElementById('selected-date').value;
+                if (weightData[selectedDate]) {
+                    document.getElementById('current-weight').textContent = `${weightData[selectedDate]} kg`;
+                }
+                
+                sortedEntries.forEach(([date, weight]) => {
+                    const entry = document.createElement('div');
+                    entry.className = 'weight-entry';
+                    entry.innerHTML = `
+                        <span class="weight-date">${date}</span>
+                        <span><strong>${weight} kg</strong></span>
+                    `;
+                    weightEntries.appendChild(entry);
+                });
+            }
+            
+            // Function to update progress
+            function updateProgress() {
+                const workouts = ['legs', 'arms', 'chest-shoulders', 'back'];
+                let totalExercises = 0;
+                let completedExercises = 0;
+                let completedWorkouts = 0;
+                
+                workouts.forEach(workout => {
+                    const section = document.getElementById(workout);
+                    const exercises = section.querySelectorAll('.exercise');
+                    let completedCount = 0;
+                    
+                    exercises.forEach(exercise => {
+                        if (exercise.classList.contains('completed')) {
+                            completedCount++;
+                            completedExercises++;
+                        }
+                        totalExercises++;
+                    });
+                    
+                    const percentage = (completedCount / exercises.length) * 100;
+                    document.getElementById(`${workout}-progress`).textContent = `${Math.round(percentage)}%`;
+                    document.getElementById(`${workout}-bar`).style.width = `${percentage}%`;
+                    
+                    if (percentage === 100) {
+                        completedWorkouts++;
+                    }
+                });
+                
+                // Update overall progress
+                const overallPercentage = Math.round((completedExercises / totalExercises) * 100);
+                document.getElementById('overall-progress').textContent = `${overallPercentage}%`;
+                document.getElementById('workouts-completed').textContent = `${completedWorkouts}/4`;
+            }
+            
+            // Function to update weight chart
+            function updateWeightChart() {
+                const weightChart = document.getElementById('weight-chart');
+                weightChart.innerHTML = '';
+                
+                const weightData = JSON.parse(localStorage.getItem('weightData')) || {};
+                
+                // Convert to array and sort by date (oldest first)
+                const sortedEntries = Object.entries(weightData)
+                    .sort((a, b) => new Date(a[0]) - new Date(b[0]));
+                
+                if (sortedEntries.length === 0) {
+                    weightChart.innerHTML = '<p>No weight data available for chart.</p>';
+                    return;
+                }
+                
+                // Get weights and dates
+                const weights = sortedEntries.map(entry => entry[1]);
+                const dates = sortedEntries.map(entry => {
+                    const date = new Date(entry[0]);
+                    return `${date.getMonth()+1}/${date.getDate()}`;
+                });
+                
+                // Find min and max weights for scaling
+                const minWeight = Math.min(...weights);
+                const maxWeight = Math.max(...weights);
+                const range = maxWeight - minWeight;
+                
+                // Create chart bars
+                weights.forEach((weight, index) => {
+                    const barHeight = range > 0 ? ((weight - minWeight) / range) * 90 + 10 : 50;
+                    const bar = document.createElement('div');
+                    bar.className = 'chart-bar';
+                    bar.style.height = `${barHeight}px`;
+                    bar.title = `${dates[index]}: ${weight} kg`;
+                    
+                    const label = document.createElement('div');
+                    label.className = 'chart-label';
+                    label.textContent = dates[index];
+                    
+                    bar.appendChild(label);
+                    weightChart.appendChild(bar);
+                });
+            }
+            
+            // Function to update progress charts
+            function updateProgressCharts() {
+                const workoutChart = document.getElementById('workout-chart');
+                workoutChart.innerHTML = '';
+                
+                const completionData = JSON.parse(localStorage.getItem('completionData')) || {};
+                
+                // Get last 7 days of data
+                const dates = [];
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    dates.push(date.toLocaleDateString());
+                }
+                
+                // Calculate completion percentages for each day
+                const completionPercentages = dates.map(date => {
+                    if (!completionData[date]) return 0;
+                    
+                    const exercises = Object.values(completionData[date]);
+                    if (exercises.length === 0) return 0;
+                    
+                    const completed = exercises.filter(val => val).length;
+                    return Math.round((completed / exercises.length) * 100);
+                });
+                
+                // Create chart bars
+                completionPercentages.forEach((percentage, index) => {
+                    const bar = document.createElement('div');
+                    bar.className = 'chart-bar';
+                    bar.style.height = `${percentage}%`;
+                    bar.title = `${dates[index]}: ${percentage}%`;
+                    
+                    const label = document.createElement('div');
+                    label.className = 'chart-label';
+                    const date = new Date(dates[index]);
+                    label.textContent = `${date.getMonth()+1}/${date.getDate()}`;
+                    
+                    bar.appendChild(label);
+                    workoutChart.appendChild(bar);
+                });
+            }
+            
+            // Function to load history
+            function loadHistory() {
+                const historyData = document.getElementById('history-data');
+                historyData.innerHTML = '';
+                
+                const month = document.getElementById('history-month').value;
+                const year = document.getElementById('history-year').value;
+                
+                const completionData = JSON.parse(localStorage.getItem('completionData')) || {};
+                const weightData = JSON.parse(localStorage.getItem('weightData')) || {};
+                
+                // Filter data for selected month and year
+                const filteredData = {};
+                
+                for (const date in completionData) {
+                    const dateObj = new Date(date);
+                    if (dateObj.getMonth() == month && dateObj.getFullYear() == year) {
+                        filteredData[date] = {
+                            completion: completionData[date],
+                            weight: weightData[date] || '-'
+                        };
+                    }
+                }
+                
+                if (Object.keys(filteredData).length === 0) {
+                    historyData.innerHTML = '<tr><td colspan="4" style="text-align: center;">No data available for this period</td></tr>';
+                    return;
+                }
+                
+                // Convert to array and sort by date (newest first)
+                const sortedEntries = Object.entries(filteredData)
+                    .sort((a, b) => new Date(b[0]) - new Date(a[0]));
+                
+                // Populate history table
+                sortedEntries.forEach(([date, data]) => {
+                    const completedExercises = Object.values(data.completion).filter(val => val).length;
+                    const totalExercises = Object.values(data.completion).length;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${date}</td>
+                        <td>${completedExercises > 0 ? 'Workout Completed' : 'No Workout'}</td>
+                        <td>${completedExercises}/${totalExercises}</td>
+                        <td>${data.weight}</td>
+                    `;
+                    historyData.appendChild(row);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
